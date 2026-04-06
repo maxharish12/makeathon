@@ -134,7 +134,7 @@
                 <div id="farmer-chat-container"></div>
                 <div id="farmer-input-area" class="hidden" style="display:flex; gap: 8px; margin-bottom: 24px; align-items:center;">
                     <button id="mic-btn" class="btn btn-outline" style="padding: 12px 20px; border-color: var(--border-subtle); color: var(--text-muted);" onclick="startVoiceRecognition()"><ion-icon name="mic"></ion-icon></button>
-                    <input type="text" id="farmer-input" class="native-input" data-i18n-placeholder="type_answer" placeholder="Type your answer..." style="flex:1;" onkeypress="if(event.key === 'Enter') sendFarmerReply();">
+                    <input type="text" id="farmer-input" class="native-input" data-i18n-placeholder="type_answer" placeholder="Type your answer..." style="flex:1;">
                     <button class="btn btn-green-gradient" style="padding: 12px 20px;" onclick="sendFarmerReply()"><ion-icon name="send"></ion-icon></button>
                 </div>
                 
@@ -179,20 +179,7 @@
                 <div class="stage"></div><div class="line"></div><div class="stage"></div>
             </div>
             <div class="content-scroll">
-                <div id="broker-live-orders-container" style="margin-bottom: 24px;">
-                    <h3 class="section-title" style="display: flex; align-items: center; gap: 8px;">
-                        <ion-icon name="flash" class="amber"></ion-icon> Live Incoming Orders
-                    </h3>
-                    <div id="broker-orders-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
-                        <!-- JS Will Populate This -->
-                        <div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">No live orders available right now.</div>
-                    </div>
-                </div>
-
-                <div class="divider mb-4" style="height: 1px; background: var(--border-subtle); margin: 24px 0;"></div>
-
                 <div id="broker-scan" class="scan-zone">
-                    <h3 class="section-title" style="margin-bottom: 16px; text-align: center;">Or Scan Manual QR</h3>
                     <div class="scan-frame" id="reader-broker"><div class="sweep-light" id="sweep-broker"></div><ion-icon name="qr-code-outline" class="scan-icon" id="icon-broker"></ion-icon></div>
                     <div style="display:flex; gap:10px; width:100%;">
                         <button class="btn btn-amber-gradient" style="flex:1;" data-i18n="scan_qr" onclick="triggerScan('broker')">Live Scan</button>

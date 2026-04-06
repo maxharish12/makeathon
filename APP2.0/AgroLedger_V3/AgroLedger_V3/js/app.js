@@ -370,138 +370,12 @@ function speakText(key) {
     }
 }
 
-// Global Accessibility - Tap-to-Speak
-document.addEventListener('click', function(e) {
-    if(window.isMuted) return;
-    
-    // Ignore clicks inside the chat container so it doesn't interrupt organic chat flow unnecessarily
-    if(e.target.closest('#farmer-chat-container')) return;
-
-    const target = e.target.closest('button, .role-card, .timeline-item, .alert, .stat-card, .market-item, .checklist-item, .info-row, h1, h2, h3, h4, .price-value');
-    if (target) {
-        let textToSpeak = target.getAttribute('data-i18n') ? i18n[currentLang][target.getAttribute('data-i18n')] : '';
-        if (!textToSpeak && target.innerText) {
-            textToSpeak = target.innerText;
-        }
-        if (textToSpeak) {
-            // Replace newlines and strip remaining html tags
-            textToSpeak = textToSpeak.replace(/<[^>]*>?/gm, '').replace(/\n/g, ' ').trim();
-            if(textToSpeak) speakText(textToSpeak);
-        }
-    }
-}, true);
-
-// Override Alert for voice
-const originalAlert = window.alert;
-window.alert = function(msg) {
-    if(!window.isMuted) speakText(msg);
-    originalAlert(msg);
-};
-
 window.currentBasePrice = 18;
 window.currentBrokerTargetPrice = 22.5;
 window.currentMandiTargetPrice = 28;
 window.currentRetailerTargetPrice = 38;
 
 window.agroChainState = {};
-window.liveOrders = [];
-let selectedCrop = 'onion';
-let selectedQty = '500kg';
-window.portalStates = { farmer: 'new', broker: 'new', mandi: 'new', retailer: 'new' };
-
-const StorageDB = {
-    save: function() {
-        const data = {
-            agroChainState: window.agroChainState,
-            liveOrders: window.liveOrders,
-            currentBasePrice: window.currentBasePrice,
-            currentBrokerTargetPrice: window.currentBrokerTargetPrice,
-            currentMandiTargetPrice: window.currentMandiTargetPrice,
-            currentRetailerTargetPrice: window.currentRetailerTargetPrice,
-            currentFarmerName: window.currentFarmerName,
-            currentBrokerName: window.currentBrokerName,
-            currentMandiName: window.currentMandiName,
-            currentRetailerName: window.currentRetailerName,
-            selectedCrop: selectedCrop,
-            selectedQty: selectedQty,
-            globalBatchTime: window.globalBatchTime,
-            globalMLContext: window.globalMLContext,
-            portalStates: window.portalStates
-        };
-        localStorage.setItem('agroLedgerDB', JSON.stringify(data));
-    },
-    load: function() {
-        const raw = localStorage.getItem('agroLedgerDB');
-        if (raw) {
-            try {
-                const data = JSON.parse(raw);
-                window.agroChainState = data.agroChainState || {};
-                window.liveOrders = data.liveOrders || [];
-                window.currentBasePrice = data.currentBasePrice || 18;
-                window.currentBrokerTargetPrice = data.currentBrokerTargetPrice || 22.5;
-                window.currentMandiTargetPrice = data.currentMandiTargetPrice || 28;
-                window.currentRetailerTargetPrice = data.currentRetailerTargetPrice || 38;
-                if(data.currentFarmerName) window.currentFarmerName = data.currentFarmerName;
-                if(data.currentBrokerName) window.currentBrokerName = data.currentBrokerName;
-                if(data.currentMandiName) window.currentMandiName = data.currentMandiName;
-                if(data.currentRetailerName) window.currentRetailerName = data.currentRetailerName;
-                if(data.selectedCrop) selectedCrop = data.selectedCrop;
-                if(data.selectedQty) selectedQty = data.selectedQty;
-                window.globalBatchTime = data.globalBatchTime;
-                window.globalMLContext = data.globalMLContext;
-                if(data.portalStates) window.portalStates = data.portalStates;
-            } catch(e) {
-                console.error("DB Load Error", e);
-            }
-        }
-    }
-};
-
-StorageDB.load();
-
-function renderBrokerLiveOrders() {
-    const listEl = document.getElementById('broker-orders-list');
-    if(!listEl) return;
-    listEl.innerHTML = '';
-    
-    if(window.liveOrders.length === 0) {
-        listEl.innerHTML = '<div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">No live orders available right now.</div>';
-        return;
-    }
-    
-    window.liveOrders.forEach((order, index) => {
-        if(!order.bid) return;
-        const cropName = order.crp ? capitalize(order.crp) : 'Crop';
-        const qty = order.qty || '';
-        const price = order.f?.p || '--';
-        const origin = order.ml?.city || 'Unknown';
-        
-        listEl.innerHTML += `
-            <div class="produce-card" style="margin-top: 0; padding: 12px; border: 1px solid var(--amber); border-radius: 12px; background: rgba(243, 156, 18, 0.05); display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="selectLiveOrder('${order.bid}')">
-                <div>
-                    <h4 style="margin:0; font-size: 16px; color: var(--text-color);">${cropName} (${qty})</h4>
-                    <div style="font-size:13px; color:var(--text-muted); margin-top:4px;"><ion-icon name="location-outline"></ion-icon> ${origin} &middot; ₹${price}/kg</div>
-                </div>
-                <button class="btn btn-amber-gradient" style="padding: 6px 16px; font-size: 14px; border-radius: 20px;">Accept</button>
-            </div>
-        `;
-    });
-}
-
-function selectLiveOrder(bid) {
-    const order = window.liveOrders.find(o => o.bid === bid);
-    if(order) {
-        window.liveOrders = window.liveOrders.filter(o => o.bid !== bid);
-        renderBrokerLiveOrders();
-        
-        const container = document.getElementById('broker-live-orders-container');
-        if(container) container.classList.add('hidden');
-        
-        document.getElementById('broker-scan').classList.add('hidden');
-        
-        processDecodedQR(JSON.stringify(order), 'broker', bid);
-    }
-}
 
 function generateUnifiedQR(containerId) {
     const el = document.getElementById(containerId);
@@ -521,7 +395,8 @@ function generateUnifiedQR(containerId) {
     }
 }
 
-
+let selectedCrop = 'onion';
+let selectedQty = '500kg';
 
 let marketData = [
     { emoji: '🧅', name: 'Onion', langKey: 'mcq_onion', origin: 'Nasik', priceStr: '₹30-32', trend: 'up', trendColor: 'red' },
@@ -557,96 +432,32 @@ setTimeout(renderMLBoard, 100);
 function navigate(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('view-' + viewId).classList.add('active');
-    
-    // Announce portal navigation for accessibility
-    if(!window.isMuted && viewId !== 'login') {
-        const viewNames = {
-            'home': 'Home Menu',
-            'farmer': 'Farmer Portal',
-            'broker': 'Broker Portal',
-            'mandi': 'Mandi Portal',
-            'retailer': 'Retailer Portal',
-            'public': 'Public Consumer Access'
-        };
-        if(viewNames[viewId]) speakText('Navigated to ' + viewNames[viewId]);
-    }
 
     if(viewId === 'home') {
-        // Keep UI state natively without resetting on navigation
+        document.getElementById('broker-scan').classList.remove('hidden');
+        document.getElementById('broker-results').classList.add('hidden');
+        document.getElementById('broker-actions').classList.add('hidden');
+        document.querySelectorAll('.checklist-item').forEach(i => i.classList.remove('checked'));
+        document.getElementById('broker-alert').classList.add('hidden');
+        const brokerInput = document.querySelector('#broker-price-input');
+        if(brokerInput) brokerInput.value = '';
+
+        document.getElementById('farmer-results').classList.add('hidden');
+        document.getElementById('farmer-action').classList.add('hidden');
+        document.getElementById('farmer-chat-container').innerHTML = '';
+        document.getElementById('farmer-input-area').classList.add('hidden');
+
+        document.getElementById('mandi-scan').classList.remove('hidden');
+        document.getElementById('mandi-results').classList.add('hidden');
+        document.getElementById('mandi-actions').classList.add('hidden');
+
+        document.getElementById('retailer-scan').classList.remove('hidden');
+        document.getElementById('retailer-results').classList.add('hidden');
+        document.getElementById('retailer-success').classList.add('hidden');
+        document.getElementById('retailer-actions').classList.add('hidden');
     }
 
-    if(viewId === 'farmer') {
-        const s = window.portalStates?.farmer;
-        if(s === 'success' || window.agroChainState?.f) {
-            document.getElementById('farmer-chat-container').innerHTML = '';
-            document.getElementById('farmer-input-area').classList.add('hidden');
-            processScanSuccess('farmer');
-        } else {
-            startFarmerChat();
-        }
-    }
-    
-    if(viewId === 'broker') {
-        const s = window.portalStates?.broker;
-        if(s === 'success') {
-            document.getElementById('broker-scan').classList.add('hidden');
-            const liveOrdersContainer = document.getElementById('broker-live-orders-container');
-            if(liveOrdersContainer) liveOrdersContainer.classList.add('hidden');
-            document.getElementById('broker-results').classList.add('hidden');
-            document.getElementById('broker-actions').classList.add('hidden');
-            document.getElementById('broker-success').classList.remove('hidden');
-            document.getElementById('broker-success-actions').classList.remove('hidden');
-            generateUnifiedQR('broker-qr-container');
-        } else if(s === 'pending') {
-            document.getElementById('broker-scan').classList.add('hidden');
-            const liveOrdersContainer = document.getElementById('broker-live-orders-container');
-            if(liveOrdersContainer) liveOrdersContainer.classList.add('hidden');
-            document.getElementById('broker-results').classList.remove('hidden');
-            document.getElementById('broker-actions').classList.remove('hidden');
-        } else {
-            renderBrokerLiveOrders();
-        }
-    }
-    
-    if(viewId === 'mandi') {
-        const s = window.portalStates?.mandi;
-        if(s === 'success') {
-            document.getElementById('mandi-scan').classList.add('hidden');
-            document.getElementById('mandi-results').classList.add('hidden');
-            document.getElementById('mandi-actions').classList.add('hidden');
-            document.getElementById('mandi-success').classList.remove('hidden');
-            document.getElementById('mandi-success-actions').classList.remove('hidden');
-            generateUnifiedQR('mandi-qr-container');
-        } else if(s === 'pending') {
-            document.getElementById('mandi-scan').classList.add('hidden');
-            document.getElementById('mandi-results').classList.remove('hidden');
-            document.getElementById('mandi-actions').classList.remove('hidden');
-        } else {
-            document.getElementById('mandi-scan').classList.remove('hidden');
-            document.getElementById('mandi-results').classList.add('hidden');
-            document.getElementById('mandi-actions').classList.add('hidden');
-        }
-    }
-    
-    if(viewId === 'retailer') {
-        const s = window.portalStates?.retailer;
-        if(s === 'success') {
-            document.getElementById('retailer-scan').classList.add('hidden');
-            document.getElementById('retailer-results').classList.add('hidden');
-            document.getElementById('retailer-actions').classList.add('hidden');
-            document.getElementById('retailer-success').classList.remove('hidden');
-            document.getElementById('retailer-success-actions').classList.remove('hidden');
-            generateUnifiedQR('retailer-qr-container');
-        } else if(s === 'pending') {
-            document.getElementById('retailer-scan').classList.add('hidden');
-            document.getElementById('retailer-results').classList.remove('hidden');
-            document.getElementById('retailer-actions').classList.remove('hidden');
-        } else {
-            document.getElementById('retailer-scan').classList.remove('hidden');
-            document.getElementById('retailer-results').classList.add('hidden');
-            document.getElementById('retailer-actions').classList.add('hidden');
-        }
-    }
+    if(viewId === 'farmer') startFarmerChat();
 }
 
 let currentLoginRole = '';
@@ -694,58 +505,21 @@ function requireLogin(role) {
     navigate('login');
 }
 
-// Cloud Backend Simulation for Unique Keys
-const CloudKeysDB = {
-    'broker': ['BRK123', 'BRK456', 'BRK789', 'BROKER-2026'],
-    'mandi': ['MND123', 'MND456', 'MND789', 'MANDI-2026'],
-    'retailer': ['RTL123', 'RTL456', 'RTL789', 'RETAILER-2026']
-};
-
-async function verifyCloudKey(role, key) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const validKeys = CloudKeysDB[role] || [];
-            resolve(validKeys.includes(key));
-        }, 800); // simulate cloud network delay
-    });
-}
-
 // Store standard mock OTP
 let expectedOTP = "123456";
 
-async function verifyLogin() {
-    const input = document.getElementById('login-id').value.trim();
+function verifyLogin() {
+    const input = document.getElementById('login-id').value;
     const nameInput = document.getElementById('login-name');
     const roleName = nameInput && nameInput.value.trim() !== '' ? nameInput.value.trim() : '';
-    const btn = document.getElementById('login-btn');
-    const errorEl = document.getElementById('login-error');
 
-    if(input.length > 0) { 
-        btn.innerHTML = '<ion-icon name="cloud-outline"></ion-icon> Verifying Cloud...';
-        btn.disabled = true;
-        
-        const isValid = await verifyCloudKey(currentLoginRole, input);
-        
-        btn.innerText = i18n[currentLang]['verify_login'] || 'Verify & Login';
-        btn.disabled = false;
-
-        if (isValid) {
-            errorEl.classList.add('hidden');
-            if(currentLoginRole === 'broker') window.currentBrokerName = roleName || "Sanjay Traders";
-            else if(currentLoginRole === 'mandi') window.currentMandiName = roleName || "Bhubaneswar APMC";
-            else if(currentLoginRole === 'retailer') window.currentRetailerName = roleName || "FreshMart";
-            navigate(currentLoginRole); 
-        } else {
-            errorEl.innerText = "Cloud Verification Failed: Invalid Unique ID.";
-            errorEl.classList.remove('hidden');
-            if(!window.isMuted) speakText('Cloud Verification Failed: Invalid Unique ID.');
-        }
+    if(input.length >= 4) { 
+        if(currentLoginRole === 'broker') window.currentBrokerName = roleName || "Sanjay Traders";
+        else if(currentLoginRole === 'mandi') window.currentMandiName = roleName || "Bhubaneswar APMC";
+        else if(currentLoginRole === 'retailer') window.currentRetailerName = roleName || "FreshMart";
+        navigate(currentLoginRole); 
     } 
-    else { 
-        errorEl.innerText = "Please enter an ID.";
-        errorEl.classList.remove('hidden'); 
-        if(!window.isMuted) speakText('Please enter an ID.');
-    }
+    else { document.getElementById('login-error').classList.remove('hidden'); }
 }
 
 function sendOTP() {
@@ -792,7 +566,6 @@ function verifyFarmerLogin() {
     } else {
         document.getElementById('otp-error').innerText = "Incorrect OTP entered.";
         document.getElementById('otp-error').classList.remove('hidden');
-        if(!window.isMuted) speakText('Incorrect OTP entered.');
     }
 }
 
@@ -843,11 +616,6 @@ function acceptBroker() {
     document.getElementById('broker-success').classList.remove('hidden');
     document.getElementById('broker-success-actions').classList.remove('hidden');
     generateUnifiedQR('broker-qr-container');
-    
-    if(window.portalStates) {
-        window.portalStates.broker = 'success';
-        StorageDB.save();
-    }
 }
 
 function acceptMandi() {
@@ -883,11 +651,6 @@ function acceptMandi() {
     document.getElementById('mandi-success').classList.remove('hidden');
     document.getElementById('mandi-success-actions').classList.remove('hidden');
     generateUnifiedQR('mandi-qr-container');
-    
-    if(window.portalStates) {
-        window.portalStates.mandi = 'success';
-        StorageDB.save();
-    }
 }
 
 
@@ -1037,11 +800,6 @@ function simulateQRScanFallback(portalId) {
 }
 
 function processScanSuccess(portalId) {
-    if(window.portalStates && portalId !== 'public') {
-        window.portalStates[portalId] = 'pending';
-        StorageDB.save();
-    }
-
     if (currentScanner) {
         try { 
             currentScanner.stop().then(() => {
@@ -1052,31 +810,21 @@ function processScanSuccess(portalId) {
     }
 
     const scanZone = document.getElementById(portalId + '-scan');
-    if (scanZone) {
-        scanZone.classList.remove('scanning');
-        scanZone.classList.add('hidden');
-    }
+    scanZone.classList.remove('scanning');
+    scanZone.classList.add('hidden');
     
     if (portalId === 'retailer') populateRetailerData();
     else if (portalId === 'mandi') populateMandiData();
     else if (portalId === 'public') populatePublicData();
-    else if (portalId === 'farmer') populateFarmerData();
     
     document.getElementById(portalId + '-results').classList.remove('hidden');
     if (portalId !== 'public') {
         const actionEl = document.getElementById(portalId + '-actions');
         if(actionEl) actionEl.classList.remove('hidden');
     }
-    
-    if(!window.isMuted) speakText('QR Code Scanned and Details Verified.');
 }
 
 function resetScan(portalId) {
-    if(window.portalStates) {
-        window.portalStates[portalId] = 'new';
-        StorageDB.save();
-    }
-
     if (currentScanner) {
         try { 
             currentScanner.stop().then(() => {
@@ -1218,11 +966,6 @@ function acceptRetailer() {
     window.agroChainState.r = { n: window.currentRetailerName || 'FreshMart', p: val, t: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
 
     showRetailerSuccess();
-    
-    if(window.portalStates) {
-        window.portalStates.retailer = 'success';
-        StorageDB.save();
-    }
 }
 
 function toggleCheck(el) { el.classList.toggle('checked'); }
@@ -1264,37 +1007,6 @@ function handlePublicPhotoCapture() {
         }
         reader.readAsDataURL(file);
     }
-}
-
-function populateFarmerData() {
-    if(!window.agroChainState || !window.agroChainState.f) return;
-    const fState = window.agroChainState;
-    const mlData = fState.ml || { temp: 28, hum: 65, city: "Odisha", soil: "Alluvial" };
-    
-    const cropName = fState.crp ? capitalize(fState.crp) : 'Crop';
-    document.getElementById('dynamic-crop-name').innerText = cropName;
-    document.getElementById('dynamic-crop-name').removeAttribute('data-i18n');
-    
-    const tempEl = document.getElementById('dynamic-temp');
-    if(tempEl) tempEl.innerHTML = `<ion-icon name="thermometer"></ion-icon> ${mlData.temp}°C`;
-    
-    const humidEl = document.getElementById('dynamic-humid');
-    if(humidEl) humidEl.innerHTML = `<ion-icon name="water"></ion-icon> ${mlData.hum}% Hum`;
-    
-    const locEl = document.getElementById('dynamic-location');
-    if(locEl) locEl.innerText = `${mlData.city}`;
-    
-    const qtyParsed = parseInt(fState.qty ? fState.qty.match(/\d+/) || [1] : [1], 10);
-    const totalPrice = (fState.f.p || 18) * qtyParsed;
-    
-    document.getElementById('dynamic-price-value').innerHTML = `₹${totalPrice}<span class="unit"> Total (₹${fState.f.p}/kg)</span>`;
-    document.getElementById('dynamic-batch-id').innerText = fState.bid || "AGRO-OD-0000";
-    
-    const nameEl = document.getElementById('dynamic-farmer-name');
-    if(nameEl) nameEl.innerText = fState.f.n || "Farmer";
-    
-    generateUnifiedQR('dynamic-qr-container');
-    document.getElementById('farmer-action').classList.remove('hidden');
 }
 
 
@@ -1390,13 +1102,6 @@ const chatMap = {
         f_5: "മൊത്തം അളവ് എത്ര? (ഉദാ: 50kg)",
         err1: "ക്ഷമിക്കണം, മനസ്സിലായില്ല. വീണ്ടും ശ്രമിക്കുക.", err2: "പരിധി 100kg ആണ്.",
         err3: "ശരിയായ ഭാരം നൽകുക.", sat: "സാറ്റലൈറ്റ് ഡാറ്റ ശേഖരിക്കുന്നു..."
-    },
-    'or': {
-        f_1: "ନମସ୍କାର! ଆପଣ ଫଳ କିମ୍ବା ପନିପରିବା ବିକ୍ରି କରୁଛନ୍ତି କି?", f_2: "ଆଜି କେଉଁ ଫଳ ବିକ୍ରି କରୁଛନ୍ତି?",
-        f_3: "ଆଜି କେଉଁ ପନିପରିବା ବିକ୍ରି କରୁଛନ୍ତି?", f_4: "ଦୟାକରି 'ଫଳ' କିମ୍ବା 'ପନିପରିବା' ଲେଖନ୍ତୁ।",
-        f_5: "ଆନୁମାନିକ ପରିମାଣ କେତେ? (ଯେପରିକି: 50kg)",
-        err1: "ଆମେ ଏହାକୁ ଚିହ୍ନି ପାରିଲୁ ନାହିଁ। ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।", err2: "କ୍ଷମା କରିବେ, ସର୍ବାଧିକ ସୀମା 100kg।",
-        err3: "ସଠିକ୍ ଓଜନ ଦିଅନ୍ତୁ।", sat: "ସାଟେଲାଇଟ୍ ଡାଟା ପ୍ରାପ୍ତ କରାଯାଉଛି..."
     }
 };
 Object.keys(chatMap).forEach(lang => {
@@ -1514,11 +1219,7 @@ async function processFarmerResults() {
     const locEl = document.getElementById('dynamic-location');
     if(locEl) locEl.innerText = `${mlData.city} (Soil: ${mlData.soil})`;
     
-    const qtyMatch = selectedQty.match(/\d+/);
-    const qtyParsed = parseInt(qtyMatch ? qtyMatch[0] : "1", 10);
-    const totalPrice = basePrice * qtyParsed;
-    
-    document.getElementById('dynamic-price-value').innerHTML = `₹${totalPrice}<span class="unit"> Total (₹${basePrice}/kg)</span>`;
+    document.getElementById('dynamic-price-value').innerHTML = `₹${basePrice}<span class="unit">/kg</span>`;
     
     // Store globally for propagation
     window.globalMLContext = mlData;
@@ -1548,16 +1249,7 @@ async function processFarmerResults() {
         f: { n: window.currentFarmerName, p: basePrice, t: window.globalBatchTime }
     };
     
-    if(window.liveOrders) {
-        window.liveOrders.push(JSON.parse(JSON.stringify(window.agroChainState)));
-    }
-    
     generateUnifiedQR('dynamic-qr-container');
-    
-    if(window.portalStates) {
-        window.portalStates.farmer = 'success';
-        StorageDB.save();
-    }
     
     // Inject dynamic farmer name into UI
     const nameEl = document.getElementById('dynamic-farmer-name');

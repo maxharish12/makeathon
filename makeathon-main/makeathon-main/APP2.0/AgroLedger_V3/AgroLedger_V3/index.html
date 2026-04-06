@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AgroLedger</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <!-- Styling -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- QR Code Gen -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Home -->
+        <section id="view-home" class="view active">
+            <div class="home-container">
+                <div class="lang-toggle">
+                    <button id="lang-en" class="lang-btn active" onclick="setLang('en')">EN</button>
+                    <button id="lang-hi" class="lang-btn" onclick="setLang('hi')">हिंदी</button>
+                    <button id="lang-ta" class="lang-btn" onclick="setLang('ta')">தமிழ்</button>
+                    <button id="lang-te" class="lang-btn" onclick="setLang('te')">తెలుగు</button>
+                    <button id="lang-mr" class="lang-btn" onclick="setLang('mr')">मराठी</button>
+                    <button id="lang-bn" class="lang-btn" onclick="setLang('bn')">বাংলা</button>
+                    <button id="lang-kn" class="lang-btn" onclick="setLang('kn')">ಕನ್ನಡ</button>
+                    <button id="lang-ml" class="lang-btn" onclick="setLang('ml')">മലയാളം</button>
+                    <button id="lang-or" class="lang-btn" onclick="setLang('or')">ଓଡ଼ିଆ</button>
+                </div>
+
+                <div class="logo-wrapper">
+                    <div class="logo-glow"></div>
+                    <svg class="wheat-logo floating" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 90V10M50 10C40 30 20 40 20 60C20 70 30 80 50 90ZM50 10C60 30 80 40 80 60C80 70 70 80 50 90Z" stroke="#f0d080" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M50 30C40 45 25 55 25 70C25 75 35 85 50 90" stroke="#f0d080" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M50 30C60 45 75 55 75 70C75 75 65 85 50 90" stroke="#f0d080" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                
+                <div class="title-section">
+                    <h1 class="main-title">Agro<span class="text-green">Ledger</span></h1>
+                    <div class="subtitle" data-i18n="subtitle">BLOCKCHAIN &middot; AI &middot; VERIFIED</div>
+                </div>
+
+                <div class="role-grid">
+                    <div class="role-card" onclick="requireLogin('farmer')">
+                        <div class="role-icon green"><ion-icon name="leaf"></ion-icon></div>
+                        <span class="role-name" data-i18n="farmer">Farmer</span>
+                    </div>
+                    <div class="role-card" onclick="requireLogin('broker')">
+                        <div class="role-icon amber"><ion-icon name="swap-horizontal"></ion-icon></div>
+                        <span class="role-name" data-i18n="broker">Broker</span>
+                    </div>
+                    <div class="role-card" onclick="requireLogin('mandi')">
+                        <div class="role-icon blue"><ion-icon name="business"></ion-icon></div>
+                        <span class="role-name" data-i18n="mandi">Mandi</span>
+                    </div>
+                    <div class="role-card" onclick="requireLogin('retailer')">
+                        <div class="role-icon purple"><ion-icon name="storefront"></ion-icon></div>
+                        <span class="role-name" data-i18n="retailer">Retailer</span>
+                    </div>
+                </div>
+
+                <div class="public-action">
+                    <button class="btn btn-full btn-green-gradient" onclick="navigate('public')">
+                        <ion-icon name="scan"></ion-icon> <span data-i18n="public_access">Public & Consumer Access</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Login View -->
+        <section id="view-login" class="view">
+            <header class="topbar">
+                <button class="icon-btn" onclick="navigate('home')"><ion-icon name="chevron-back"></ion-icon></button>
+                <div id="login-badge" class="pill-badge">LOGIN</div>
+                <div style="width: 24px;"></div>
+            </header>
+            <div class="content-scroll" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                <div class="price-input-card" style="width: 100%; text-align: center;">
+                    <div id="login-icon" class="role-icon" style="margin: 0 auto 16px;"></div>
+                    <h3 id="login-title" data-i18n="login_title" style="margin-bottom: 24px;">Portal Login</h3>
+                    
+                    <div id="login-standard" class="hidden">
+                        <div class="input-group-large" style="margin-bottom: 12px; background: rgba(0,0,0,0.5);">
+                            <ion-icon name="person-outline" style="font-size: 24px; color: var(--text-muted); margin-right: 12px;"></ion-icon>
+                            <input type="text" id="login-name" placeholder="Enter Name (e.g. Sanjay Traders)" style="width: 100%; font-size: 20px;" class="native-input" style="padding-left:44px; border:none; background:transparent;">
+                        </div>
+                        <div class="input-group-large" style="margin-bottom: 12px; background: rgba(0,0,0,0.5);">
+                            <ion-icon name="key-outline" style="font-size: 24px; color: var(--text-muted); margin-right: 12px;"></ion-icon>
+                            <input type="text" id="login-id" data-i18n-placeholder="enter_id" placeholder="Enter Unique ID">
+                        </div>
+                        <div id="login-error" class="hidden text-red" data-i18n="invalid_id" style="font-size: 13px; margin-bottom: 16px; font-weight: bold;">Invalid ID. Please enter any code.</div>
+                        <button id="login-btn" class="btn btn-full btn-green-gradient" data-i18n="verify_login" onclick="verifyLogin()">Verify & Login</button>
+                    </div>
+
+                    <div id="login-farmer" class="hidden">
+                        <div class="input-group-large" style="margin-bottom: 12px; background: rgba(0,0,0,0.5);">
+                            <ion-icon name="person-outline" style="font-size: 24px; color: var(--text-muted); margin-right: 12px;"></ion-icon>
+                            <input type="text" id="farmer-name-input" placeholder="Full Name" style="width: 100%; font-size: 20px;" class="native-input" style="padding-left:44px; border:none; background:transparent;">
+                        </div>
+                        <div class="input-group-large" style="margin-bottom: 12px; background: rgba(0,0,0,0.5);">
+                            <ion-icon name="call-outline" style="font-size: 24px; color: var(--text-muted); margin-right: 12px;"></ion-icon>
+                            <input type="tel" id="farmer-phone-input" data-i18n-placeholder="phone_number" placeholder="Phone Number" style="width: 100%; font-size: 20px;" class="native-input" style="padding-left:44px; border:none; background:transparent;">
+                        </div>
+                        <button id="send-otp-btn" class="btn btn-full btn-outline" style="margin-bottom: 12px;" onclick="sendOTP()">Send OTP</button>
+                        
+                        <div id="otp-group" class="hidden">
+                            <div class="input-group-large" style="margin-bottom: 12px; background: rgba(0,0,0,0.5);">
+                                <ion-icon name="lock-closed-outline" style="font-size: 24px; color: var(--text-muted); margin-right: 12px;"></ion-icon>
+                                <input type="number" id="farmer-otp-input" data-i18n-placeholder="enter_otp" placeholder="Enter OTP" style="width: 100%; font-size: 20px;" class="native-input" style="padding-left:44px; border:none; background:transparent;">
+                            </div>
+                            <div id="otp-error" class="hidden text-red" style="font-size: 13px; margin-bottom: 16px; font-weight: bold;">Invalid OTP.</div>
+                            <button class="btn btn-full btn-green-gradient" data-i18n="verify_login" onclick="verifyFarmerLogin()">Verify & Login</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Farmer Portal -->
+        <section id="view-farmer" class="view">
+            <header class="topbar">
+                <button class="icon-btn" onclick="navigate('home')"><ion-icon name="chevron-back"></ion-icon></button>
+                <div class="pill-badge pill-green" data-i18n="farmer">FARMER</div>
+                <button class="icon-btn" id="mute-btn" onclick="toggleMute()"><ion-icon name="volume-high"></ion-icon></button>
+            </header>
+            <div class="content-scroll">
+                <div id="farmer-manual-form" class="price-input-card" style="margin-bottom: 24px;">
+                    <h3 style="margin-bottom: 16px;" data-i18n="produce_details">Produce Details</h3>
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label data-i18n="category_label">Category (Fruit / Vegetable)</label>
+                        <select id="farm-category" class="native-input" style="width: 100%; border: 1px solid var(--border-subtle); background: var(--card-bg); height: 44px; padding: 0 12px; border-radius: 8px; font-size: 16px; margin-top: 4px;">
+                            <option value="vegetable" data-i18n="opt_vegetable">Vegetable</option>
+                            <option value="fruit" data-i18n="opt_fruit">Fruit</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label data-i18n="crop_name_label">Name of Crop</label>
+                        <input type="text" id="farm-crop-name" class="native-input" data-i18n-placeholder="crop_name_ph" placeholder="e.g. Onion, Apple" style="width: 100%; margin-top: 4px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label data-i18n="weight_label">Weight (kg)</label>
+                        <input type="number" id="farm-weight" class="native-input" data-i18n-placeholder="weight_ph" placeholder="e.g. 100" style="width: 100%; margin-top: 4px;">
+                    </div>
+                    <button class="btn btn-full btn-green-gradient" onclick="submitFarmerForm()" data-i18n="submit_btn">Submit & Analyze Price</button>
+                    
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button id="speaker-btn" class="btn btn-outline" style="padding: 8px 16px; border-color: var(--border-subtle); color: var(--text-muted);" onclick="explainFarmerForm()">
+                            <ion-icon name="volume-high" style="margin-right: 5px;"></ion-icon> <span data-i18n="read_instructions">Read Instructions</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="farmer-results" class="hidden">
+                    <div class="hero-card">
+                        <div class="price-label" data-i18n="fair_price">Predicted Fair Price</div>
+                        <div class="price-value" id="dynamic-price-value">₹18<span class="unit">/kg</span></div>
+                        <div class="factor-tags">
+                            <span class="tag" id="dynamic-temp"><ion-icon name="thermometer"></ion-icon> 28°C</span>
+                            <span class="tag" id="dynamic-humid"><ion-icon name="water"></ion-icon> 65% Hum</span>
+                            <span class="tag"><ion-icon name="leaf"></ion-icon> <span id="dynamic-crop-name" data-i18n="grade_a">Grade A+</span></span>
+                            <span class="tag"><ion-icon name="location"></ion-icon> <span id="dynamic-location" data-i18n="odisha">Odisha</span></span>
+                        </div>
+                    </div>
+                    <div class="qr-card">
+                        <div class="corner-tl"></div><div class="corner-tr"></div>
+                        <div class="corner-bl"></div><div class="corner-br"></div>
+                        <div class="qr-label">BATCH ID</div>
+                        <div class="batch-id" id="dynamic-batch-id">AGRO-OD-4928</div>
+                        <div id="dynamic-qr-container" style="background:var(--card-bg); padding:10px; border-radius:10px; margin: 10px auto; width:170px; display:flex; justify-content:center;"></div>
+                        <div class="farmer-name" id="dynamic-farmer-name">Ramesh Kumar</div>
+                        <div class="verified-label"><ion-icon name="shield-checkmark"></ion-icon> <span data-i18n="aadhaar_linked">Aadhaar Linked &middot; Blockchain Verified</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-action hidden" id="farmer-action">
+                <button class="btn btn-full btn-outline" data-i18n="print_qr">Print Batch QR Label</button>
+            </div>
+        </section>
+
+        <!-- Broker Portal -->
+        <section id="view-broker" class="view">
+            <header class="topbar">
+                <button class="icon-btn" onclick="navigate('home')"><ion-icon name="chevron-back"></ion-icon></button>
+                <div class="pill-badge pill-amber" data-i18n="broker">BROKER</div>
+                <div style="width: 24px;"></div>
+            </header>
+            <div class="stage-tracker">
+                <div class="stage done"></div><div class="line done"></div>
+                <div class="stage active pulse-amber"></div><div class="line"></div>
+                <div class="stage"></div><div class="line"></div>
+                <div class="stage"></div><div class="line"></div><div class="stage"></div>
+            </div>
+            <div class="content-scroll">
+                <div id="broker-live-orders-container" style="margin-bottom: 24px;">
+                    <h3 class="section-title" style="display: flex; align-items: center; gap: 8px;">
+                        <ion-icon name="flash" class="amber"></ion-icon> Live Incoming Orders
+                    </h3>
+                    <div id="broker-orders-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+                        <!-- JS Will Populate This -->
+                        <div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">No live orders available right now.</div>
+                    </div>
+                </div>
+
+                <div class="divider mb-4" style="height: 1px; background: var(--border-subtle); margin: 24px 0;"></div>
+
+                <div id="broker-scan" class="scan-zone">
+                    <h3 class="section-title" style="margin-bottom: 16px; text-align: center;">Or Scan Manual QR</h3>
+                    <div class="scan-frame" id="reader-broker"><div class="sweep-light" id="sweep-broker"></div><ion-icon name="qr-code-outline" class="scan-icon" id="icon-broker"></ion-icon></div>
+                    <div style="display:flex; gap:10px; width:100%;">
+                        <button class="btn btn-amber-gradient" style="flex:1;" data-i18n="scan_qr" onclick="triggerScan('broker')">Live Scan</button>
+                        <button class="btn btn-outline" style="flex:1; border-color:var(--amber); color:var(--amber);" onclick="document.getElementById('file-scan-broker').click()">Upload Image</button>
+                        <input type="file" id="file-scan-broker" style="display:none;" accept="image/*" onchange="handleFileScan(event, 'broker')">
+                    </div>
+                </div>
+                <div id="broker-results" class="hidden produce-details">
+                    <div class="produce-card">
+                        <div class="produce-header dark-green">
+                            <h3 id="dynamic-broker-crop">Onion (500kg)</h3><span class="batch-sm">AGRO-OD-4928</span>
+                        </div>
+                        <div class="factor-tags" style="margin-left: 16px; margin-top: 8px;">
+                            <span class="tag" id="broker-dynamic-temp"><ion-icon name="thermometer"></ion-icon> --°C</span>
+                            <span class="tag" id="broker-dynamic-humid"><ion-icon name="water"></ion-icon> --% Hum</span>
+                            <span class="tag"><ion-icon name="location"></ion-icon> <span id="broker-dynamic-location" data-i18n="origin">Origin</span></span>
+                        </div>
+                        <div class="produce-body">
+                            <div class="info-row"><span data-i18n="farmer_price">Farmer Price</span><span class="fw-bold" id="dynamic-broker-price">₹18/kg</span></div>
+                            <div class="info-row"><span data-i18n="ai_fair_price">AI Fair Price</span><span class="text-green fw-bold">₹19-21/kg</span></div>
+                            <div class="info-row"><span data-i18n="quality_grade">Quality Grade</span><span class="badge-grade" data-i18n="grade_a">A+</span></div>
+                            <div class="info-row"><span data-i18n="harvest_time">Harvest Time</span><span>Today, 06:30 AM</span></div>
+                            <div class="info-row"><span data-i18n="verification">Verification</span><span class="text-green"><ion-icon name="checkmark-circle"></ion-icon> <span data-i18n="verified">Verified</span></span></div>
+                        </div>
+                    </div>
+                    <div class="checklist-card">
+                        <h4 data-i18n="physical_check">Physical Checklist</h4>
+                        <div class="checklist-item" onclick="toggleCheck(this)"><div class="check-circle"><ion-icon name="checkmark"></ion-icon></div><span data-i18n="chk_1">Visual Quality Matches Grade A+</span></div>
+                        <div class="checklist-item" onclick="toggleCheck(this)"><div class="check-circle"><ion-icon name="checkmark"></ion-icon></div><span data-i18n="chk_2">Weight Verified</span></div>
+                        <div class="checklist-item" onclick="toggleCheck(this)"><div class="check-circle"><ion-icon name="checkmark"></ion-icon></div><span data-i18n="chk_3">No Moisture Damage</span></div>
+                    </div>
+                    <div class="price-input-card">
+                        <h4 data-i18n="purchase_price">Your Purchase Price</h4>
+                        <div class="input-group-large">
+                            <span class="currency">₹</span>
+                            <input type="number" id="broker-price-input" placeholder="0.00" oninput="checkMargin(this, 'broker-alert', 'broker')">
+                        </div>
+                        <div id="broker-alert" class="alert alert-amber hidden"><ion-icon name="warning"></ion-icon> Warning: Margin exceeds recommended 25% limit.</div>
+                    </div>
+                </div>
+                <div id="broker-success" class="hidden success-state text-center" style="margin-top: 30px;">
+                    <div class="star-badge"><ion-icon name="checkmark-circle"></ion-icon></div>
+                    <h2>Broker Verified</h2>
+                    <p style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">Pass this QR internally to the Mandi.</p>
+                    <div id="broker-qr-container" style="background:var(--card-bg); padding:10px; border-radius:10px; margin: 0 auto; width:170px; display:flex; justify-content:center;"></div>
+                </div>
+            </div>
+            <div id="broker-actions" class="bottom-action dual-action hidden">
+                <button class="btn btn-red-outline" data-i18n="reject" onclick="resetScan('broker')">Reject</button>
+                <button class="btn btn-green-gradient" data-i18n="accept" onclick="executeEscrow(acceptBroker)">Accept & Execute Escrow</button>
+            </div>
+            <div id="broker-success-actions" class="bottom-action hidden">
+                <button class="btn btn-full btn-outline" onclick="navigate('home')">Back to Home</button>
+            </div>
+        </section>
+
+        <!-- Mandi Portal -->
+        <section id="view-mandi" class="view">
+            <header class="topbar">
+                <button class="icon-btn" onclick="navigate('home')"><ion-icon name="chevron-back"></ion-icon></button>
+                <div class="pill-badge pill-blue" data-i18n="mandi">MANDI</div>
+                <div style="width: 24px;"></div>
+            </header>
+            <div class="stage-tracker">
+                <div class="stage done"></div><div class="line done"></div>
+                <div class="stage done"></div><div class="line done"></div>
+                <div class="stage active pulse-blue"></div><div class="line"></div>
+                <div class="stage"></div><div class="line"></div><div class="stage"></div>
+            </div>
+            <div class="content-scroll">
+                <div id="mandi-scan" class="scan-zone">
+                    <div class="scan-frame" id="reader-mandi"><div class="sweep-light" id="sweep-mandi"></div><ion-icon name="qr-code-outline" class="scan-icon" id="icon-mandi"></ion-icon></div>
+                    <div style="display:flex; gap:10px; width:100%;">
+                        <button class="btn btn-blue-gradient" style="flex:1;" data-i18n="scan_incoming" onclick="triggerScan('mandi')">Live Scan</button>
+                        <button class="btn btn-outline" style="flex:1; border-color:var(--blue); color:var(--blue);" onclick="document.getElementById('file-scan-mandi').click()">Upload Image</button>
+                        <input type="file" id="file-scan-mandi" style="display:none;" accept="image/*" onchange="handleFileScan(event, 'mandi')">
+                    </div>
+                </div>
+                <div id="mandi-results" class="hidden produce-details">
+                    <div class="factor-tags" style="margin-bottom: 16px;">
+                        <span class="tag" id="mandi-dynamic-temp"><ion-icon name="thermometer"></ion-icon> --°C</span>
+                        <span class="tag" id="mandi-dynamic-humid"><ion-icon name="water"></ion-icon> --% Hum</span>
+                        <span class="tag"><ion-icon name="location"></ion-icon> <span id="mandi-dynamic-location" data-i18n="origin">Origin</span></span>
+                    </div>
+                    <h3 class="section-title" data-i18n="blockchain_timeline">Blockchain Timeline</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="tl-node done"></div>
+                            <div class="tl-content"><div class="tl-role" data-i18n="tl_farmer">Farmer Entry</div><div class="tl-meta" id="mandi-timeline-farmer">₹18/kg &middot; 06:30 AM</div><div class="tl-badge green"><span data-i18n="verified">Verified</span></div></div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="tl-node done"></div>
+                            <div class="tl-content"><div class="tl-role" data-i18n="tl_broker">Broker Entry</div><div class="tl-meta" id="mandi-timeline-broker">₹22.5/kg &middot; 11:15 AM</div><div class="tl-badge green"><span data-i18n="verified">Verified</span></div></div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="tl-node active pulse-blue"></div>
+                            <div class="tl-content"><div class="tl-role" data-i18n="mandi">Mandi Auction</div><div class="tl-meta" data-i18n="tl_pending">Pending</div><div class="tl-badge amber" data-i18n="tl_await">Awaiting Pricing</div></div>
+                        </div>
+                    </div>
+                    <div class="checklist-card" id="mandi-checklist">
+                        <h4 style="margin-bottom: 12px; font-size: 16px; color: var(--text-color);" data-i18n="mandi_verify_hdr">Transit & Quality Verification</h4>
+                        <div class="checklist-item mandi-check" onclick="toggleCheck(this)"><div class="check-circle"><ion-icon name="checkmark"></ion-icon></div><span data-i18n="mandi_chk_1">Product Reached Safely</span></div>
+                        <div class="checklist-item mandi-check" onclick="toggleCheck(this)"><div class="check-circle"><ion-icon name="checkmark"></ion-icon></div><span data-i18n="mandi_chk_2">Quality Maintained during Transit</span></div>
+                    </div>
+                    <div class="price-input-card mt-4">
+                        <h4 data-i18n="auction_price">Set Auction Starting Price</h4>
+                        <div class="input-group-large">
+                            <span class="currency">₹</span>
+                            <input type="number" id="mandi-price-input" placeholder="0.00" oninput="checkMargin(this, 'mandi-alert', 'mandi')">
+                        </div>
+                        <div id="mandi-alert" class="alert alert-amber hidden"><ion-icon name="warning"></ion-icon> Warning: Max 25% margin.</div>
+                    </div>
+                </div>
+                <div id="mandi-success" class="hidden success-state text-center" style="margin-top: 30px;">
+                    <div class="star-badge"><ion-icon name="checkmark-circle"></ion-icon></div>
+                    <h2>Mandi Auctioned</h2>
+                    <p style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">Scan this QR upon Retailer Delivery.</p>
+                    <div id="mandi-qr-container" style="background:var(--card-bg); padding:10px; border-radius:10px; margin: 0 auto; width:170px; display:flex; justify-content:center;"></div>
+                </div>
+            </div>
+            <div id="mandi-actions" class="bottom-action dual-action hidden">
+                <button class="btn btn-red-outline" data-i18n="reject" onclick="resetScan('mandi')">Reject</button>
+                <button class="btn btn-blue-gradient" data-i18n="accept_auction" onclick="executeEscrow(acceptMandi)">Accept</button>
+            </div>
+            <div id="mandi-success-actions" class="bottom-action hidden">
+                <button class="btn btn-full btn-outline" onclick="navigate('home')">Back to Home</button>
+            </div>
+        </section>
+
+        <!-- Retailer Portal -->
+        <section id="view-retailer" class="view">
+            <header class="topbar">
+                <button class="icon-btn" onclick="navigate('home')"><ion-icon name="chevron-back"></ion-icon></button>
+                <div class="pill-badge pill-purple" data-i18n="retailer">RETAILER</div>
+                <div style="width: 24px;"></div>
+            </header>
+            <div class="stage-tracker">
+                <div class="stage done"></div><div class="line done"></div><div class="stage done"></div><div class="line done"></div>
+                <div class="stage done"></div><div class="line done"></div><div class="stage done"></div><div class="line done"></div>
+                <div class="stage active pulse-purple"></div>
+            </div>
+            <div class="content-scroll">
+                <div id="retailer-scan" class="scan-zone">
+                    <div class="scan-frame" id="reader-retailer"><div class="sweep-light" id="sweep-retailer"></div><ion-icon name="qr-code-outline" class="scan-icon" id="icon-retailer"></ion-icon></div>
+                    <div style="display:flex; gap:10px; width:100%;">
+                        <button class="btn btn-purple-gradient" style="flex:1;" data-i18n="scan_delivery" onclick="triggerScan('retailer')">Live Scan</button>
+                        <button class="btn btn-outline" style="flex:1; border-color:var(--purple); color:var(--purple);" onclick="document.getElementById('file-scan-retailer').click()">Upload Image</button>
+                        <input type="file" id="file-scan-retailer" style="display:none;" accept="image/*" onchange="handleFileScan(event, 'retailer')">
+                    </div>
+                </div>
+                <div id="retailer-results" class="hidden produce-details">
+                    <div class="produce-card mt-0">
+                        <div class="produce-header purple"><h3 id="retailer-crop-name">Onion</h3><span class="batch-sm" id="retailer-batch-id">AGRO-OD-4928</span></div>
+                        <div class="factor-tags" style="margin-left: 16px; margin-top: 8px;">
+                            <span class="tag" id="retailer-dynamic-temp"><ion-icon name="thermometer"></ion-icon> --°C</span>
+                            <span class="tag" id="retailer-dynamic-humid"><ion-icon name="water"></ion-icon> --% Hum</span>
+                            <span class="tag"><ion-icon name="location"></ion-icon> <span id="retailer-dynamic-location">Origin</span></span>
+                        </div>
+                        <div class="produce-body">
+                            <div class="info-row"><span data-i18n="farmer_price">Farmer</span><span id="retailer-farmer-price">₹18/kg</span></div>
+                            <div class="info-row"><span data-i18n="broker">Broker</span><span id="retailer-broker-price">₹22.5/kg</span></div>
+                            <div class="info-row"><span data-i18n="mandi">Mandi</span><span id="retailer-mandi-price">₹28/kg</span></div>
+                            <div class="divider"></div>
+                            <div class="info-row"><span class="fw-bold">Landed Cost</span><span class="fw-bold" id="retailer-landed-price">₹31/kg</span></div>
+                        </div>
+                        <button class="btn btn-full btn-outline" style="border: none; border-top: 1px solid var(--border-subtle); border-radius: 0 0 16px 16px; background: rgba(0,0,0,0.2);" data-i18n="track_shipment" onclick="initTrackingMap()">Track Shipment</button>
+                    </div>
+                    <div class="alert alert-info mt-3"><ion-icon name="information-circle"></ion-icon> <span id="retailer-ml-prediction">ML Prediction: Public price range for your area is ₹38-42/kg.</span></div>
+                    <div class="price-input-card mt-3">
+                        <h4 data-i18n="retail_price">Your Retail Price</h4>
+                        <div class="input-group-large"><span class="currency">₹</span><input type="number" id="retailer-price-input" placeholder="30.00" onkeyup="checkMargin(this, 'retailer-alert', 'retailer')"></div>
+                        <div id="retailer-alert" class="alert mt-2 hidden"></div>
+                    </div>
+                </div>
+                <div id="retailer-success" class="hidden success-state text-center" style="margin-top: 30px;">
+                    <div class="star-badge"><ion-icon name="star"></ion-icon></div>
+                    <h2 data-i18n="verified_shop">Verified Shop</h2>
+                    <p style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">Price updated on blockchain. Consumers can now verify.</p>
+                    <div id="retailer-qr-container" style="background:var(--card-bg); padding:10px; border-radius:10px; margin: 0 auto; width:170px; display:flex; justify-content:center;"></div>
+                </div>
+            </div>
+            <div id="retailer-actions" class="bottom-action dual-action hidden">
+                <button class="btn btn-red-outline" data-i18n="reject" onclick="resetScan('retailer')">Reject</button>
+                <button class="btn btn-purple-gradient" data-i18n="confirm_delivery" onclick="executeEscrow(acceptRetailer)">Confirm Delivery</button>
+            </div>
+            <div id="retailer-success-actions" class="bottom-action hidden">
+                <button class="btn btn-full btn-outline" onclick="navigate('home')">Back to Home</button>
+            </div>
+        </section>
+
+        <!-- Public Portal -->
+        <section id="view-public" class="view">
+            <header class="topbar">
+                <button class="icon-btn" onclick="navigate('home')"><ion-icon name="chevron-back"></ion-icon></button>
+                <div class="pill-badge pill-sand">PUBLIC</div>
+                <div style="width: 24px;"></div>
+            </header>
+            <div class="content-scroll">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value text-green">2,847</div><div class="stat-label">Farmers Registered</div></div>
+                    <div class="stat-card"><div class="stat-value text-blue">14,203</div><div class="stat-label">Batches Tracked</div></div>
+                    <div class="stat-card"><div class="stat-value text-red">47</div><div class="stat-label">Frauds Flagged</div></div>
+                    <div class="stat-card"><div class="stat-value text-amber">₹2.1Cr</div><div class="stat-label">Farmer Savings</div></div>
+                </div>
+                <div class="market-section mt-4">
+                    <h3 class="section-title" data-i18n="live_board">Live ML Price Board</h3>
+                    <input type="text" id="ml-search" class="native-input mb-4" data-i18n-placeholder="search_veg" placeholder="Search vegetables..." onkeyup="filterMLBoard()">
+                    <div class="market-list" id="ml-board">
+                        <div class="market-item"><div class="mi-left"><span class="emoji">🧅</span><div><div class="mi-name" data-i18n="mcq_onion">Onion</div><div class="mi-origin">Nasik</div></div></div><div class="mi-right"><div class="mi-price">₹38-42</div><ion-icon name="arrow-up" class="trend-red"></ion-icon></div></div>
+                        <div class="market-item"><div class="mi-left"><span class="emoji">🥔</span><div><div class="mi-name" data-i18n="mcq_potato">Potato</div><div class="mi-origin">Agra</div></div></div><div class="mi-right"><div class="mi-price">₹28-32</div><ion-icon name="arrow-down" class="trend-green"></ion-icon></div></div>
+                        <div class="market-item"><div class="mi-left"><span class="emoji">🍅</span><div><div class="mi-name" data-i18n="mcq_tomato">Tomato</div><div class="mi-origin">Pune</div></div></div><div class="mi-right"><div class="mi-price">₹48-52</div><ion-icon name="remove" class="trend-grey"></ion-icon></div></div>
+                    </div>
+                </div>
+                <div class="divider my-4"></div>
+                <div id="public-scan" class="scan-zone minimal mt-0">
+                    <div class="scan-frame" id="reader-public"><div class="sweep-light" id="sweep-public"></div><ion-icon name="qr-code-outline" class="scan-icon" id="icon-public"></ion-icon></div>
+                    <div style="display:flex; gap:10px; width:100%;">
+                        <button class="btn btn-sand-gradient" style="flex:1;" data-i18n="scan_verify" onclick="triggerScan('public')">Live Scan</button>
+                        <button class="btn btn-outline" style="flex:1; border-color:var(--sand); color:var(--sand);" onclick="document.getElementById('file-scan-public').click()">Upload Image</button>
+                        <input type="file" id="file-scan-public" style="display:none;" accept="image/*" onchange="handleFileScan(event, 'public')">
+                    </div>
+                </div>
+                <div id="public-results" class="hidden mb-4">
+                    <div class="verification-header">
+                        <div class="score-circle"><ion-icon name="checkmark"></ion-icon></div>
+                        <h2>100% Genuine</h2>
+                        <p id="public-batch-id">Origin: Cuttack, Odisha &middot; Batch AGRO-OD-4928</p>
+                    </div>
+                    <div class="timeline inline-timeline">
+                        <div class="timeline-item"><div class="tl-node done"></div><div class="tl-content"><div class="tl-role" id="dynamic-public-timeline-farmer">1. Farm Origin (Ramesh K.)</div><div class="tl-meta" id="public-timeline-farmer">₹18/kg &middot; 06:30 AM</div><div class="tl-badge green"><ion-icon name="shield-checkmark"></ion-icon> <span data-i18n="verified">Verified</span></div></div></div>
+                        <div class="timeline-item"><div class="tl-node done"></div><div class="tl-content"><div class="tl-role" id="dynamic-public-timeline-broker">2. Broker (Sanjay Traders)</div><div class="tl-meta" id="public-timeline-broker">₹22.5/kg &middot; 11:15 AM</div><div class="tl-badge green"><ion-icon name="shield-checkmark"></ion-icon> <span data-i18n="verified">Verified</span></div></div></div>
+                        <div class="timeline-item"><div class="tl-node done"></div><div class="tl-content"><div class="tl-role" id="dynamic-public-timeline-mandi">3. Mandi (Bhubaneswar APMC)</div><div class="tl-meta" id="public-timeline-mandi">₹28/kg &middot; 02:40 PM</div><div class="tl-badge green"><ion-icon name="shield-checkmark"></ion-icon> <span data-i18n="verified">Verified</span></div></div></div>
+                        <div class="timeline-item"><div class="tl-node done"></div><div class="tl-content"><div class="tl-role" id="dynamic-public-timeline-retailer">4. Retailer (FreshMart)</div><div class="tl-meta" id="public-timeline-retailer">₹38/kg &middot; 06:00 PM</div><div class="tl-badge green"><ion-icon name="shield-checkmark"></ion-icon> <span data-i18n="verified">Verified</span></div></div></div>
+                    </div>
+                </div>
+                <div class="registration-section pb-4">
+                    <h3 class="section-title" data-i18n="report_shop">Report / Register Shop</h3>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" data-i18n="small_shop" onclick="setRegType('small')">Small Shop</button>
+                        <button class="toggle-btn" data-i18n="big_shop" onclick="setRegType('big')">Big Shop</button>
+                    </div>
+                    <form class="reg-form mt-3" onsubmit="event.preventDefault(); alert('Request sent to Blockchain for verification.')">
+
+                        <div class="form-group" id="reg-gps-group">
+                            <button type="button" class="btn btn-outline btn-full" onclick="requestGPS()"><ion-icon name="navigate" style="margin-right:8px;"></ion-icon> <span data-i18n="get_gps">Get Current Location</span></button>
+                            <div id="gps-status" class="text-green mt-2 hidden" style="font-size:13px; font-weight: bold;"><ion-icon name="checkmark-circle"></ion-icon> Location Acquired: 20.29° N, 85.82° E</div>
+                        </div>
+
+                        <div class="form-group" id="reg-landmark-group">
+                            <label data-i18n="landmark">Landmark</label>
+                            <div class="input-with-icon">
+                                <ion-icon name="business"></ion-icon>
+                                <input type="text" class="native-input" style="padding-left: 44px;" placeholder="Near post office..." data-i18n-placeholder="landmark_ph">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Shop Photo</label>
+                            <div class="photo-upload" onclick="openCameraModal()" style="cursor: pointer;">
+                                <ion-icon name="camera" id="public-camera-icon"></ion-icon>
+                                <span id="public-camera-text" data-i18n="take_photo">Take Photo</span>
+                            </div>
+                            <input type="file" accept="image/*" capture="environment" id="public-camera-input" style="display:none;" onchange="handlePublicPhotoCapture()">
+                        </div>
+                        
+                        <div id="big-shop-fields" class="hidden">
+                            <div class="form-group">
+                                <label data-i18n="phone_number">Mobile Number</label>
+                                <div class="input-with-icon">
+                                    <ion-icon name="call"></ion-icon>
+                                    <input type="tel" placeholder="+91" class="native-input" style="padding-left: 44px;">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-full btn-sand-gradient mt-3" data-i18n="submit_report">Submit Report</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+        
+        <!-- V3 MODALS -->
+        <!-- 1. AI Oracle (Farmer) -->
+        <div id="modal-oracle" class="modal-overlay">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3><ion-icon name="analytics-outline" style="color:#3498db"></ion-icon> AI Demand Oracle</h3>
+                    <button class="close-btn" onclick="closeModal('modal-oracle')"><ion-icon name="close"></ion-icon></button>
+                </div>
+                <p style="font-size:14px; color:var(--text-muted)">Real-time supply forecasting across regional mandis based on upcoming heatwave anomaly.</p>
+                <div class="oracle-graph">
+                    <div class="oracle-line"></div>
+                </div>
+                <div class="oracle-data">
+                    <span style="color:#e74c3c">Day 1</span>
+                    <span style="color:#f1c40f">Day 3</span>
+                    <span style="color:#2ecc71">Day 7 (Peak)</span>
+                </div>
+                <button class="btn btn-full btn-blue-gradient mt-4" style="padding:12px;" onclick="closeModal('modal-oracle')">Optimize Harvest Schedule</button>
+            </div>
+        </div>
+
+        <!-- 2. Smart Contract Escrow (Action) -->
+        <div id="modal-escrow" class="modal-overlay">
+            <div class="modal-box escrow-animation">
+                <ion-icon name="lock-closed" class="escrow-lock" id="escrow-icon"></ion-icon>
+                <h3 style="margin-bottom:8px;" id="escrow-title">Executing Blockchain Escrow</h3>
+                <p style="font-size:14px; color:var(--text-muted);" id="escrow-text">Verifying multi-sig transaction. Awaiting digital handshake...</p>
+                <div class="escrow-hash" id="escrow-hash">TX: 0x8fB32...a9C1</div>
+            </div>
+        </div>
+
+        <!-- 3. Blockchain Auction (Mandi) -->
+        <div id="modal-auction" class="modal-overlay">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3><ion-icon name="hammer-outline" style="color:var(--amber)"></ion-icon> Surplus Smart Auction</h3>
+                    <button class="close-btn" onclick="closeModal('modal-auction'); stopAuction();"><ion-icon name="close"></ion-icon></button>
+                </div>
+                <p style="font-size:14px; margin-bottom:12px;">Live bidding for surplus crop batch.</p>
+                <div class="auction-feed" id="auction-feed">
+                    <div class="bid-item"><span style="color:var(--text-muted)">Connecting to peer network...</span></div>
+                </div>
+                <button class="btn btn-full btn-amber-gradient mt-3" style="padding:12px;" onclick="closeModal('modal-auction'); stopAuction();">Close Auction</button>
+            </div>
+        </div>
+
+        <!-- 4. Logistics Tracker (Retailer) -->
+        <div id="modal-logistics" class="modal-overlay">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3><ion-icon name="navigate" style="color:#e74c3c"></ion-icon> Live Transit Tracker</h3>
+                    <button class="close-btn" onclick="closeModal('modal-logistics')"><ion-icon name="close"></ion-icon></button>
+                </div>
+                <div id="google-map" style="width: 100%; height: 250px; background: #222; border-radius: 12px; margin-bottom: 12px; position: relative; overflow: hidden;">
+                    <div id="live-temp-gauge" style="position: absolute; top: 10px; right: 10px; z-index: 10; background: rgba(0,0,0,0.8); padding: 5px 10px; border-radius: 20px; font-size: 12px; border: 1px solid var(--blue); color: var(--blue); font-weight: bold;"><ion-icon name="snow"></ion-icon> <span id="map-temp">2.4</span>°C</div>
+                    <div id="live-hum-gauge" style="position: absolute; top: 40px; right: 10px; z-index: 10; background: rgba(0,0,0,0.8); padding: 5px 10px; border-radius: 20px; font-size: 12px; border: 1px solid #1abc9c; color: #1abc9c; font-weight: bold;"><ion-icon name="water"></ion-icon> <span id="map-hum">65</span>%</div>
+                    <div id="live-shock-gauge" style="position: absolute; top: 70px; right: 10px; z-index: 10; background: rgba(0,0,0,0.8); padding: 5px 10px; border-radius: 20px; font-size: 12px; border: 1px solid #f1c40f; color: #f1c40f; font-weight: bold;"><ion-icon name="pulse"></ion-icon> Shock: <span id="map-shock">Low</span></div>
+                    <div id="live-speed-gauge" style="position: absolute; bottom: 25px; left: 10px; z-index: 10; background: rgba(0,0,0,0.8); padding: 5px 10px; border-radius: 5px; font-size: 12px; color: white; border: 1px solid rgba(255,255,255,0.2);">Speed: <span id="map-speed">0</span> km/h</div>
+                    <div id="live-gps-gauge" style="position: absolute; bottom: 25px; right: 10px; z-index: 10; background: rgba(0,0,0,0.8); padding: 5px 10px; border-radius: 5px; font-size: 12px; color: #2ecc71; border: 1px solid rgba(46,204,113,0.2);"><ion-icon name="satellite"></ion-icon> GPS 3D Fix</div>
+                </div>
+                <div class="info-row mt-3"><span style="font-size:13px;">Provider</span><span style="font-weight:600; font-size:14px;">ColdChain Logistics Ltd.</span></div>
+                <div class="info-row"><span style="font-size:13px;">Live Status</span><span style="font-weight:600; font-size:14px; color:var(--sprout)" id="map-eta">Connecting to GPS...</span></div>
+            </div>
+        </div>
+
+        <!-- 5. Camera Capture Modal -->
+        <div id="modal-camera" class="modal-overlay">
+            <div class="modal-box" style="padding: 10px; display: flex; flex-direction: column; align-items: center;">
+                <div class="modal-header" style="width: 100%; border-bottom: none; margin-bottom: 0;">
+                    <h3><ion-icon name="camera-outline"></ion-icon> Capture Photo</h3>
+                    <button class="close-btn" onclick="closeCameraModal()"><ion-icon name="close"></ion-icon></button>
+                </div>
+                <video id="camera-video" style="width: 100%; max-height: 60vh; background: #000; border-radius: 8px;" autoplay playsinline></video>
+                <div style="margin-top: 15px; width: 100%; display: flex; justify-content: center;">
+                    <button class="btn btn-green-gradient" style="padding: 12px 24px; border-radius: 50px;" onclick="takePhotoWithAPI()">
+                        <ion-icon name="camera"></ion-icon> Capture
+                    </button>
+                </div>
+                <canvas id="camera-canvas" style="display: none;"></canvas>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- Google Maps API for Developer Mode Prototype -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?v=weekly"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
